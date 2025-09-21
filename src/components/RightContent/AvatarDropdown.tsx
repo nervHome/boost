@@ -9,7 +9,7 @@ import { Spin } from 'antd';
 import { createStyles } from 'antd-style';
 import React from 'react';
 import { flushSync } from 'react-dom';
-import { outLogin } from '@/services/ant-design-pro/api';
+import { outLogin } from '@/services/login';
 import HeaderDropdown from '../HeaderDropdown';
 
 export type GlobalHeaderRightProps = {
@@ -20,7 +20,7 @@ export type GlobalHeaderRightProps = {
 export const AvatarName = () => {
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState || {};
-  return <span className="anticon">{currentUser?.name}</span>;
+  return <span className="anticon">{currentUser?.email}</span>;
 };
 
 const useStyles = createStyles(({ token }) => {
@@ -99,7 +99,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
 
   const { currentUser } = initialState;
 
-  if (!currentUser || !currentUser.name) {
+  if (!currentUser || !currentUser.email) {
     return loading;
   }
 

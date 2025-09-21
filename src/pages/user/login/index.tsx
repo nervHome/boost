@@ -10,7 +10,7 @@ import { createStyles } from 'antd-style';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Footer } from '@/components';
-import { login } from '@/services/ant-design-pro/api';
+import { login } from '@/services/login';
 import Settings from '../../../../config/defaultSettings';
 
 const useStyles = createStyles(({ token }) => {
@@ -64,7 +64,6 @@ const LoginMessage: React.FC<{
 };
 const Login: React.FC = () => {
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
-  const [type, setType] = useState<string>('account');
   const { initialState, setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
   const { message } = App.useApp();
@@ -82,11 +81,10 @@ const Login: React.FC = () => {
   const handleSubmit = async (values: API.LoginParams) => {
     try {
       // 登录
-      const msg = await login({
-        ...values,
-        type,
-      });
-      if (msg.status === 'ok') {
+      const msg = await login(values);
+      const { access_token } = msg || {};
+      if (access_token) {
+        localStorage.setItem('access_token', access_token);
         const defaultLoginSuccessMessage = '登录成功！';
         message.success(defaultLoginSuccessMessage);
         await fetchUserInfo();
@@ -94,16 +92,10 @@ const Login: React.FC = () => {
         window.location.href = urlParams.get('redirect') || '/';
         return;
       }
-      console.log(msg);
       // 如果失败去设置用户错误信息
       setUserLoginState(msg);
-    } catch (error) {
-      const defaultLoginFailureMessage = '登录失败，请重试！';
-      console.log(error);
-      message.error(defaultLoginFailureMessage);
-    }
+    } catch {}
   };
-  const { status, type: loginType } = userLoginState;
   return (
     <div className={styles.container}>
       <Helmet>

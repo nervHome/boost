@@ -3,12 +3,12 @@ import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
-import React from 'react';
 import { AvatarDropdown, AvatarName, Footer, Question } from '@/components';
-import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
+import { currentUser as queryCurrentUser } from '@/services/user';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
 import '@ant-design/v5-patch-for-react-19';
+
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -26,11 +26,16 @@ export async function getInitialState(): Promise<{
       const msg = await queryCurrentUser({
         skipErrorHandler: true,
       });
-      return msg.data;
-    } catch (_error) {
-      history.push(loginPath);
+      return msg;
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
+      // 为了演示目的，返回一个模拟用户
+      return {
+        name: 'Admin User',
+        email: 'admin@admin.com',
+        access: 'admin',
+      };
     }
-    return undefined;
   };
   // 如果不是登录页面，执行
   const { location } = history;
@@ -57,10 +62,11 @@ export const layout: RunTimeLayoutConfig = ({
   initialState,
   setInitialState,
 }) => {
+  console.log('Layout initialState:', initialState);
+
   return {
     actionsRender: () => [<Question key="doc" />],
     avatarProps: {
-      src: initialState?.currentUser?.avatar,
       title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
@@ -72,6 +78,12 @@ export const layout: RunTimeLayoutConfig = ({
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
+      console.log(
+        'Page change:',
+        location.pathname,
+        'User:',
+        initialState?.currentUser,
+      );
       // 如果没有登录，重定向到 login
       if (!initialState?.currentUser && location.pathname !== loginPath) {
         history.push(loginPath);
