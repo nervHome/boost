@@ -79,4 +79,20 @@ declare namespace API {
     description?: string;
     type?: NoticeIconItemType;
   };
+
+
+  type ChannelForm = {
+    name?:string;
+    channelId?: string
+    loggoUrl?:string
+    language?:string
+    country?:string
+    isActive?:boolean
+  }
+
+  type ChannelListItem = {
+    id?:string;
+    updatedAt?: string;
+    createdAt?: string;
+  } & ChannelForm;
 }
