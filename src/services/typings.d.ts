@@ -95,4 +95,22 @@ declare namespace API {
     updatedAt?: string;
     createdAt?: string;
   } & ChannelForm;
+
+  type EpgListItem = {
+    xmlUrl?: string
+    name?: string
+    language?: string
+    remark?: string
+    _count: {
+      programmes: number
+      channels: number
+    }
+  }
+
+  type EpgForm = {
+    xmlUrl?: string
+    name?: string
+    language?: string
+    remark?: string
+}
 }

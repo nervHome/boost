@@ -22,20 +22,10 @@ export async function getInitialState(): Promise<{
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
 }> {
   const fetchUserInfo = async () => {
-    try {
-      const msg = await queryCurrentUser({
-        skipErrorHandler: true,
-      });
-      return msg;
-    } catch (error) {
-      console.error('Failed to fetch user info:', error);
-      // 为了演示目的，返回一个模拟用户
-      return {
-        name: 'Admin User',
-        email: 'admin@admin.com',
-        access: 'admin',
-      };
-    }
+    const msg = await queryCurrentUser({
+      skipErddrorHandler: true,
+    });
+    return msg;
   };
   // 如果不是登录页面，执行
   const { location } = history;

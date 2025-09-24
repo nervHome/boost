@@ -9,37 +9,32 @@ import {
 import { useRequest } from '@umijs/max';
 import { Button, message } from 'antd';
 import type { FC } from 'react';
-import { addChannel } from '@/services/channel';
+import { addEpg } from '@/services/epg';
 
 interface CreateFormProps {
   reload?: ActionType['reload'];
 }
-const CreateChannelForm: FC<CreateFormProps> = (props) => {
+const CreateForm: FC<CreateFormProps> = (props) => {
   const { reload } = props;
   const [messageApi, contextHolder] = message.useMessage();
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
-
-  const { run, loading } = useRequest(addChannel, {
+  const { run, loading } = useRequest(addEpg, {
     manual: true,
     onSuccess: () => {
-      messageApi.success('新增频道成功');
+      messageApi.success('新增EPG成功');
       reload?.();
     },
     onError: () => {
-      messageApi.error('新增频道失败，请重试！');
+      messageApi.error('新增EPG失败，请重试！');
     },
   });
   return (
     <>
       {contextHolder}
       <ModalForm
-        title={'新建频道'}
+        title={'新增EPG'}
         trigger={
           <Button type="primary" icon={<PlusOutlined />}>
-            新增
+            新建
           </Button>
         }
         width="400px"
@@ -49,7 +44,7 @@ const CreateChannelForm: FC<CreateFormProps> = (props) => {
           },
         }}
         onFinish={async (value) => {
-          await run([value as API.ChannelForm]);
+          await run(value as API.EpgForm);
           return true;
         }}
       >
@@ -57,49 +52,49 @@ const CreateChannelForm: FC<CreateFormProps> = (props) => {
           rules={[
             {
               required: true,
-              message: '频道ID为必填项',
+              message: '规则名称为必填项',
             },
           ]}
-          label="频道ID"
           width="md"
-          name="channelId"
+          label="名称"
+          name="name"
         />
         <ProFormText
           rules={[
             {
               required: true,
-              message: '名称为必填项',
+              message: 'EPG ID为必填项',
             },
           ]}
-          label="频道名称"
           width="md"
-          name="name"
+          label="EPG ID"
+          name="epgId"
         />
         <ProFormSelect
           rules={[
             {
               required: true,
-              message: '频道类型为必填项',
+              message: '语言为必填项',
             },
           ]}
+          width="md"
+          label="语言"
+          name="language"
           options={[
             {
-              label: '中文频道',
               value: 'zh',
+              label: '中文',
             },
             {
-              label: '英文频道',
               value: 'en',
+              label: '英文',
             },
           ]}
-          label="语言"
-          width="md"
-          name="type"
-          initialValue="zh"
         ></ProFormSelect>
-        <ProFormTextArea width="md" name="remark" label="频道描述" />
+        <ProFormText width="md" label="地址" name="xmlUrl"></ProFormText>
+        <ProFormTextArea width="md" name="remark" label="备注" />
       </ModalForm>
     </>
   );
 };
-export default CreateChannelForm;
+export default CreateForm;

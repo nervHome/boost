@@ -6,6 +6,18 @@ export default [
   },
   { path: '/welcome', name: '欢迎', icon: 'smile', component: './Welcome' },
   {
+    path: '/epg',
+    name: 'EPG管理',
+    icon: 'table',
+    component: './epg',
+  },
+  {
+    path: '/channel',
+    name: '频道管理',
+    icon: 'table',
+    component: './channel-list',
+  },
+  {
     path: '/admin',
     name: '管理页',
     icon: 'crown',

@@ -10,19 +10,17 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import { useRequest } from '@umijs/max';
-import { Button, Drawer, Input, message } from 'antd';
+import { Button, Drawer, message } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
-import { channelList, removeChannel } from '@/services/channel';
-import CreateChannelForm from './components/CreateChannelForm';
-import UpdateChannelForm from './components/UpdateChannelForm';
+import { epglList, removeEpg } from '@/services/epg';
+import CreateEpgForm from './components/CreateEpgForm';
+import UpdateForm from './components/UpdateForm';
 
-const TableList: React.FC = () => {
+const EpgList: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
   const [showDetail, setShowDetail] = useState<boolean>(false);
-  const [currentRow, setCurrentRow] = useState<API.ChannelListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.ChannelListItem[]>(
-    [],
-  );
+  const [currentRow, setCurrentRow] = useState<API.EpgListItem>();
+  const [selectedRowsState, setSelectedRows] = useState<API.EpgListItem[]>([]);
 
   /**
    * @en-US International configuration
@@ -30,7 +28,7 @@ const TableList: React.FC = () => {
    * */
 
   const [messageApi, contextHolder] = message.useMessage();
-  const { run: delRun, loading } = useRequest(removeChannel, {
+  const { run: delRun, loading } = useRequest(removeEpg, {
     manual: true,
     onSuccess: () => {
       setSelectedRows([]);
@@ -41,10 +39,17 @@ const TableList: React.FC = () => {
       messageApi.error('Delete failed, please try again');
     },
   });
-  const columns: ProColumns<API.ChannelListItem>[] = [
+  const columns: ProColumns<API.EpgListItem>[] = [
     {
       title: '名称',
       dataIndex: 'name',
+      search: {
+        transform: (value) => {
+          return {
+            keyword: value,
+          };
+        },
+      },
       render: (dom, entity) => {
         return (
           <a
@@ -59,21 +64,43 @@ const TableList: React.FC = () => {
       },
     },
     {
-      title: '台标',
-      dataIndex: 'logoUrl',
-    },
-    {
-      title: '状态',
+      title: '是否启用',
       dataIndex: 'isActive',
       hideInForm: true,
+      valueType: 'select',
+      initialValue: true,
       valueEnum: {
-        0: {
-          text: '关闭',
-          status: 'Default',
-        },
-        1: {
-          text: '禁用',
-          status: 'Processing',
+        true: { text: '启用', status: 'Success' },
+        false: { text: '禁用', status: 'Error' },
+      },
+    },
+    {
+      title: '频道数',
+      dataIndex: ['_count', 'channels'],
+      hideInForm: true,
+      hideInSearch: true,
+      sorter: true,
+      renderText: (val: number) => `${val}${'个'}`,
+    },
+    {
+      title: '节目数',
+      dataIndex: ['_count', 'programmes'],
+      hideInForm: true,
+      hideInSearch: true,
+      sorter: true,
+      renderText: (val: number) => `${val}${'个'}`,
+    },
+    {
+      title: '备注',
+      dataIndex: 'remark',
+      hideInForm: true,
+      hideInSearch: true,
+      renderText: (val: string) => `${val}${'万'}`,
+      search: {
+        transform: (value) => {
+          return {
+            keyword: value,
+          };
         },
       },
     },
@@ -82,47 +109,24 @@ const TableList: React.FC = () => {
       sorter: true,
       dataIndex: 'updatedAt',
       valueType: 'dateTime',
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        const status = form.getFieldValue('status');
-        if (`${status}` === '0') {
-          return false;
-        }
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder={'请输入异常原因！'} />;
-        }
-        return defaultRender(item);
-      },
     },
     {
-      title: '创建时间',
+      title: '新建时间',
       sorter: true,
       dataIndex: 'createdAt',
       valueType: 'dateTime',
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        const status = form.getFieldValue('status');
-        if (`${status}` === '0') {
-          return false;
-        }
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder={'请输入异常原因！'} />;
-        }
-        return defaultRender(item);
-      },
     },
     {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        <UpdateChannelForm
+        <UpdateForm
           trigger={<a>配置</a>}
           key="config"
           onOk={actionRef.current?.reload}
           values={record}
         />,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          删除
-        </a>,
       ],
     },
   ];
@@ -150,17 +154,17 @@ const TableList: React.FC = () => {
   return (
     <PageContainer>
       {contextHolder}
-      <ProTable<API.ChannelListItem, API.PageParams>
-        headerTitle={'频道列表'}
+      <ProTable<API.EpgListItem, API.PageParams>
+        headerTitle={'EPG'}
         actionRef={actionRef}
         rowKey="key"
         search={{
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <CreateChannelForm key="create" reload={actionRef.current?.reload} />,
+          <CreateEpgForm key="create" reload={actionRef.current?.reload} />,
         ]}
-        request={channelList}
+        request={epglList}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -192,7 +196,6 @@ const TableList: React.FC = () => {
           >
             批量删除
           </Button>
-          <Button type="primary">批量审批</Button>
         </FooterToolbar>
       )}
 
@@ -206,7 +209,7 @@ const TableList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<API.RuleListItem>
+          <ProDescriptions<API.EpgListItem>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -215,11 +218,11 @@ const TableList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<API.RuleListItem>[]}
+            columns={columns as ProDescriptionsItemProps<API.EpgListItem>[]}
           />
         )}
       </Drawer>
     </PageContainer>
   );
 };
-export default TableList;
+export default EpgList;
