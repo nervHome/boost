@@ -14,7 +14,7 @@ import { Button, Drawer, message } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
 import { epglList, removeEpg } from '@/services/epg';
 import CreateEpgForm from './components/CreateEpgForm';
-import UpdateForm from './components/UpdateForm';
+import UpdateEpgForm from './components/UpdateEpgForm';
 
 const EpgList: React.FC = () => {
   const actionRef = useRef<ActionType | null>(null);
@@ -121,7 +121,7 @@ const EpgList: React.FC = () => {
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        <UpdateForm
+        <UpdateEpgForm
           trigger={<a>配置</a>}
           key="config"
           onOk={actionRef.current?.reload}

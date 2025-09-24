@@ -37,9 +37,9 @@ export async function addEpg(epgForm: API.EpgForm){
   });
 }
 
-export async function updateEpg(epgForm: API.EpgForm){
-  return request<Record<string, any>>('/api/epg', {
+export async function updateEpg({id, ...rest}: API.EpgForm){
+  return request<Record<string, any>>(`/api/epg/${id}`, {
     method: 'PUT',
-    data: epgForm,
+    data: rest,
   });
 }

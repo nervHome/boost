@@ -97,6 +97,7 @@ declare namespace API {
   } & ChannelForm;
 
   type EpgListItem = {
+    id?:string
     xmlUrl?: string
     name?: string
     language?: string
@@ -108,6 +109,7 @@ declare namespace API {
   }
 
   type EpgForm = {
+    id?: string
     xmlUrl?: string
     name?: string
     language?: string
