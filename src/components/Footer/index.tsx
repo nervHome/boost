@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
       style={{
         background: 'none',
       }}
-      copyright="Powered by Ant Desgin"
+      copyright="EPG"
       links={[
         {
           key: 'github',

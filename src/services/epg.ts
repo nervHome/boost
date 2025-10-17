@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 /** 获取规则列表 GET /api/rule */
-export async function epglList(
+export async function epgList(
   params: {
     // query
     /** 当前的页码 */

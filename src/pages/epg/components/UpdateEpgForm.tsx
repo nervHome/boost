@@ -5,8 +5,8 @@ import {
   ProFormTextArea,
 } from '@ant-design/pro-components';
 import { useRequest } from '@umijs/max';
-import { message } from 'antd';
-import React, { cloneElement, useCallback, useState } from 'react';
+import { Button, message } from 'antd';
+import React, { useCallback } from 'react';
 import { updateEpg } from '@/services/epg';
 export type FormValueType = {
   target?: string;
@@ -16,13 +16,11 @@ export type FormValueType = {
   frequency?: string;
 } & Partial<API.EpgListItem>;
 export type UpdateFormProps = {
-  trigger?: React.ReactElement<any>;
   onOk?: () => void;
   values: Partial<API.EpgListItem>;
 };
 const UpdateEpgForm: React.FC<UpdateFormProps> = (props) => {
-  const { onOk, values, trigger } = props;
-  const [open, setOpen] = useState(false);
+  const { onOk, values } = props;
   const [messageApi, contextHolder] = message.useMessage();
   const { run, loading } = useRequest(updateEpg, {
     manual: true,
@@ -34,33 +32,26 @@ const UpdateEpgForm: React.FC<UpdateFormProps> = (props) => {
       messageApi.error('更新失败，请重试！');
     },
   });
-  const onCancel = useCallback(() => {
-    setOpen(false);
-  }, []);
-  const onOpen = useCallback(() => {
-    setOpen(true);
-  }, []);
+
   const onFinish = useCallback(
     async (values?: any) => {
       await run({
         ...values,
         id: props.values.id,
       });
-      onCancel();
     },
-    [onCancel, run],
+    [run],
   );
   return (
     <>
       {contextHolder}
-      {trigger
-        ? cloneElement(trigger, {
-            onClick: onOpen,
-          })
-        : null}
       <ModalForm
+        trigger={
+          <Button type="text" color="primary">
+            配置
+          </Button>
+        }
         title={'新增EPG'}
-        open={open}
         width="400px"
         initialValues={values}
         modalProps={{
@@ -113,7 +104,17 @@ const UpdateEpgForm: React.FC<UpdateFormProps> = (props) => {
             },
           ]}
         ></ProFormSelect>
-        <ProFormText width="md" label="地址" name="xmlUrl"></ProFormText>
+        <ProFormText
+          width="md"
+          label="地址"
+          name="xmlUrl"
+          rules={[
+            {
+              type: 'url',
+              message: '请输入合法的URL地址',
+            },
+          ]}
+        ></ProFormText>
         <ProFormTextArea width="md" name="remark" label="备注" />
       </ModalForm>
     </>

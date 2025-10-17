@@ -195,7 +195,6 @@ const TableList: React.FC = () => {
           <Button type="primary">批量审批</Button>
         </FooterToolbar>
       )}
-
       <Drawer
         width={600}
         open={showDetail}

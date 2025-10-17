@@ -12,7 +12,7 @@ import {
 import { useRequest } from '@umijs/max';
 import { Button, Drawer, message } from 'antd';
 import React, { useCallback, useRef, useState } from 'react';
-import { epglList, removeEpg } from '@/services/epg';
+import { epgList, removeEpg } from '@/services/epg';
 import CreateEpgForm from './components/CreateEpgForm';
 import UpdateEpgForm from './components/UpdateEpgForm';
 
@@ -33,10 +33,10 @@ const EpgList: React.FC = () => {
     onSuccess: () => {
       setSelectedRows([]);
       actionRef.current?.reloadAndRest?.();
-      messageApi.success('Deleted successfully and will refresh soon');
+      messageApi.success('删除成功');
     },
     onError: () => {
-      messageApi.error('Delete failed, please try again');
+      messageApi.error('删除失败，请重试');
     },
   });
   const columns: ProColumns<API.EpgListItem>[] = [
@@ -122,7 +122,6 @@ const EpgList: React.FC = () => {
       valueType: 'option',
       render: (_, record) => [
         <UpdateEpgForm
-          trigger={<a>配置</a>}
           key="config"
           onOk={actionRef.current?.reload}
           values={record}
@@ -138,14 +137,14 @@ const EpgList: React.FC = () => {
    * @param selectedRows
    */
   const handleRemove = useCallback(
-    async (selectedRows: API.RuleListItem[]) => {
+    async (selectedRows: API.EpgListItem[]) => {
       if (!selectedRows?.length) {
         messageApi.warning('请选择删除项');
         return;
       }
       await delRun({
         data: {
-          key: selectedRows.map((row) => row.key),
+          key: selectedRows.map((row) => row.id),
         },
       });
     },
@@ -157,14 +156,13 @@ const EpgList: React.FC = () => {
       <ProTable<API.EpgListItem, API.PageParams>
         headerTitle={'EPG'}
         actionRef={actionRef}
-        rowKey="key"
         search={{
           labelWidth: 120,
         }}
         toolBarRender={() => [
           <CreateEpgForm key="create" reload={actionRef.current?.reload} />,
         ]}
-        request={epglList}
+        request={epgList}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
